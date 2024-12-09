@@ -1,0 +1,1 @@
+*/1 * * * * /usr/local/bin/python /app/jobs/append_to_file.py >> /var/log/cron.log 2>&1
