@@ -33,7 +33,7 @@ services:
       - backend
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'" ]
       interval: 10s
       timeout: 3s
       retries: 3
@@ -52,7 +52,7 @@ services:
       - backend
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost"]
+      test: [ "CMD-SHELL", "curl -f http://localhost" ]
       interval: 15s
       timeout: 3s
       retries: 2
@@ -72,6 +72,15 @@ services:
       - "5050:80"
     depends_on:
       - db
+    networks:
+      - backend
+
+  subscriber:
+    build:
+      context: ./project/mqtt
+      dockerfile: Dockerfile
+    command: python subscriber.py
+    restart: always
     networks:
       - backend
 
