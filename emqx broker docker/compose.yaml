@@ -1,0 +1,51 @@
+services:
+  emqx:
+    image: emqx:5.7.0
+    # build: 
+    #   context: ./emqx-custom
+    container_name: emqx
+    environment:
+      - EMQX_NODE_NAME=emqx@emqx.romaksystem.com
+      - EMQX_LISTENERS__TCP__DEFAULT__BIND=0.0.0.0:1883
+      - EMQX_LISTENERS__SSL__DEFAULT__BIND=0.0.0.0:8883
+      - EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__CACERTFILE=/opt/emqx/etc/certs/ca/ca.crt
+      - EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__CERTFILE=/opt/emqx/etc/certs/server/server.crt
+      - EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__KEYFILE=/opt/emqx/etc/certs/server/server.key
+      # - EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__VERIFY= verify_none
+      - EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__VERIFY=verify_peer
+      - EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__FAIL_IF_NO_PEER_CERT=true
+      - EMQX_LISTENERS__WS__DEFAULT__BIND=0.0.0.0:8083
+      - EMQX_LISTENERS__WSS__DEFAULT__BIND=0.0.0.0:8084
+      - EMQX_LISTENERS__WSS__DEFAULT__SSL_OPTIONS__CACERTFILE=/opt/emqx/etc/certs/ca/ca.crt
+      - EMQX_LISTENERS__WSS__DEFAULT__SSL_OPTIONS__CERTFILE=/opt/emqx/etc/certs/server/server.crt
+      - EMQX_LISTENERS__WSS__DEFAULT__SSL_OPTIONS__KEYFILE=/opt/emqx/etc/certs/server/server.key
+      - EMQX_LISTENERS__WSS__DEFAULT__SSL_OPTIONS__VERIFY=verify_peer
+      - EMQX_LISTENERS__WSS__DEFAULT__SSL_OPTIONS__FAIL_IF_NO_PEER_CERT=true
+      - EMQX_DASHBOARD__LISTENERS__HTTP__BIND=0.0.0.0:18083
+    restart: always
+    #command: sh -c chown -R emqx:emqx /opt/emqx/etc/certs
+    healthcheck:
+      test: [ "CMD", "/opt/emqx/bin/emqx", "ctl", "status" ]
+      interval: 5s
+      timeout: 25s
+      retries: 5
+    networks:
+      emqx-bridge:
+        aliases:
+          - emqx.romaksystem.com
+    ports:
+      - 1883:1883
+      - 8083:8083
+      - 8084:8084
+      - 8883:8883
+      - 18083:18083
+    volumes:
+      - ./certs:/opt/emqx/etc/certs
+      - ./data:/opt/emqx/data
+      - ./log:/opt/emqx/log
+      # - ./ssl_dist.conf:/opt/emqx/etc/ssl_dist.conf
+      # - ./emqx.conf:/opt/emqx/etc/emqx.conf
+
+networks:
+  emqx-bridge:
+    driver: bridge
